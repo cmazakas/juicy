@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/home/christian/juicy/UnrolledList/UnrolledList/build",
+  "command": "/usr/bin/c++    -I/home/christian/juicy/UnrolledList/UnrolledList/include -I/home/christian/juicy/UnrolledList/UnrolledList/, -I/home/christian/juicy/UnrolledList/UnrolledList/tests   -std=c++1y -Wall -Wextra -Wno-unused-parameter -pedantic   -o CMakeFiles/UnrolledList.dir/main.cpp.o -c /home/christian/juicy/UnrolledList/UnrolledList/main.cpp",
+  "file": "/home/christian/juicy/UnrolledList/UnrolledList/main.cpp"
+},
+{
+  "directory": "/home/christian/juicy/UnrolledList/UnrolledList/build",
+  "command": "/usr/bin/c++    -I/home/christian/juicy/UnrolledList/UnrolledList/include -I/home/christian/juicy/UnrolledList/UnrolledList/, -I/home/christian/juicy/UnrolledList/UnrolledList/tests   -std=c++1y -Wall -Wextra -Wno-unused-parameter -pedantic   -o CMakeFiles/UnrolledList.dir/tests/tests.cpp.o -c /home/christian/juicy/UnrolledList/UnrolledList/tests/tests.cpp",
+  "file": "/home/christian/juicy/UnrolledList/UnrolledList/tests/tests.cpp"
+},
+{
+  "directory": "/home/christian/juicy/UnrolledList/UnrolledList/build",
+  "command": "/usr/bin/c++    -I/home/christian/juicy/UnrolledList/UnrolledList/include -I/home/christian/juicy/UnrolledList/UnrolledList/, -I/home/christian/juicy/UnrolledList/UnrolledList/tests   -std=c++1y -Wall -Wextra -Wno-unused-parameter -pedantic   -o CMakeFiles/UnrolledList.dir/tests/unrolled-list-tests.cpp.o -c /home/christian/juicy/UnrolledList/UnrolledList/tests/unrolled-list-tests.cpp",
+  "file": "/home/christian/juicy/UnrolledList/UnrolledList/tests/unrolled-list-tests.cpp"
+}
+]
