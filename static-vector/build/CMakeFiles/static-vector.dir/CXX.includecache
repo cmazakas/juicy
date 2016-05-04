@@ -23,6 +23,8 @@ algorithm
 -
 iostream
 -
+cstring
+-
 ./include/static-vector.hpp
 /home/christian/juicy/static-vector/./include/static-vector.hpp
 

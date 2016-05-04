@@ -37,7 +37,7 @@ namespace regulus
       return reinterpret_cast<pointer>(data_ + pos);
     }
     
-    const_pointer caddress_at(size_type const pos)
+    const_pointer caddress_at(size_type const pos) const
     {
       return reinterpret_cast<const_pointer>(data_ + pos);
     }
@@ -55,12 +55,12 @@ namespace regulus
         , pos_{pos}
       {}
       
-      bool operator==(iterator const& other)
+      bool operator==(iterator const& other) const
       {
         return (pos_ == other.pos_);
       }
       
-      bool operator!=(iterator const& other)
+      bool operator!=(iterator const& other) const
       {
         return !(*this == other);
       }
@@ -101,6 +101,12 @@ namespace regulus
         pos_ += pos;
         return *this;
       }
+      
+      iterator& operator-(difference_type const pos)
+      {
+        pos_ -= pos;
+        return *this;
+      }
     };
     
   public:
@@ -120,10 +126,6 @@ namespace regulus
     template <typename ...Args>
     void emplace_back(Args&& ...args)
     {
-      if (size_ >= N) {
-        throw std::range_error{"Array size exceeded"};
-      }
-      
       new(address_at(size_)) value_type{std::forward<Args>(args)...};
       ++size_;
     }
@@ -131,6 +133,27 @@ namespace regulus
     reference operator[](size_type const pos)
     {
       return *address_at(pos);
+    }
+     
+    const_reference operator[](size_type const pos) const
+    {
+      return *caddress_at(pos);
+    }
+     
+    reference at(size_type const pos)
+    {
+      if (pos >= size_) {
+        throw std::out_of_range{"Index is out of bounds!"};
+      }
+      return (*this)[pos];
+    }
+        
+    const_reference at(size_type const pos) const
+    {
+      if (pos >= size_) {
+        throw std::out_of_range{"Index is out of bounds!"};
+      }
+      return (*this)[pos];
     }
         
     size_type size(void) const
@@ -146,6 +169,26 @@ namespace regulus
     iterator end(void)
     {
       return iterator{*this, (difference_type ) size_};
+    }
+    
+    reference front(void)
+    {
+      return (*this)[0];
+    }
+    
+    const_reference front(void) const
+    {
+      return (*this)[0];
+    }
+    
+    reference back(void)
+    {
+      return (*this)[size_ - 1];
+    }
+    
+    const_reference back(void) const
+    {
+      return (*this)[size_ - 1];
     }
   };
 }
