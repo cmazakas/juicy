@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++1y -Wall -Wextra -Wno-unused-parameter -pedantic   CMakeFiles/static-vector.dir/main.cpp.o  -o static-vector -rdynamic 

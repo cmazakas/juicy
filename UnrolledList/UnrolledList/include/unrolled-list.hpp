@@ -5,6 +5,7 @@
 #include <array>
 #include <type_traits>
 #include <utility>
+#include <algorithm>
 
 namespace regulus
 {
@@ -52,18 +53,20 @@ namespace regulus
         return size_;
       }
       
+      reference operator[](size_type const idx)
+      {
+        return *reinterpret_cast<pointer>(std::addressof(data_[idx]));
+      }
+      
       template <typename ...Args>
       void emplace_back(Args&& ...args)
       {
-        new(data_.data() + size_) value_type{std::forward<Args>(args)...};
+        assert(size_ < data_.size());
+        
+        new(std::addressof(data_[size_])) value_type{std::forward<Args>(args)...};
         ++size_;
       }
-      
-      reference operator[](size_type const idx) const
-      {
-        return *reinterpret_cast<pointer>(data_.data() + idx);
-      }
-      
+            
       template <
         typename = std::enable_if_t<std::is_move_assignable<value_type>::value>>
       pointer insert_at(rvalue_reference rv, size_type const idx)
@@ -85,9 +88,74 @@ namespace regulus
     
     class iterator
     {
+    public:
+      typedef std::bidirectional_iterator_tag iterator_category;
+      typedef std::ptrdiff_t difference_type;
+      typedef T value_type;
       
+    private:
+      node* node_;
+      size_type idx_;
+      
+    public:
+      iterator(void)
+        : node_{nullptr}
+        , idx_{0}
+      {}
+      
+      iterator(node* node, difference_type const idx)
+        : node_{node}
+        , idx_{idx}
+      {}
+      
+      iterator(iterator const& other)
+        : node_{other.node_}
+        , idx_{other.idx_}
+      {}
+      
+      iterator& operator++(void)
+      {
+        if (idx_ == node_capacity) {
+          auto next = node_->next;
+          if (next != nullptr) {
+            node_ = next;
+            idx_ = 0;
+          }
+        } else {
+          ++idx_;
+        }
+        
+        return *this;
+      }
+      
+      iterator& operator++(int)
+      {
+        auto tmp = *this;
+        ++(*this);
+        return tmp;
+      }
+      
+      bool operator==(iterator const& other)
+      {
+        return (node_ == other.node_ && idx_ == other.idx_);
+      }
+      
+      bool operator!=(iterator const& other)
+      {
+        return !(*this == other);
+      }
+      
+      reference operator*(void)
+      {
+        return (*node_)[idx_];
+      }
+      
+      iterator& operator=(rvalue_reference rv)
+      {
+        
+      }
     };
-    
+     
   private:
     node* head_;
     node* tail_;
@@ -127,10 +195,35 @@ namespace regulus
     void emplace_back(Args&&... args)
     {
       // for now, assume tail_->size < 32
-      assert(tail_->size() < node_capacity);
+      if (tail_->size() == node_capacity) {
+        auto new_node = new node;
+        
+        assert(new_node->next == nullptr);
+        assert(new_node->prev == nullptr);
+        assert(new_node->size() == 0);
+        
+        assert(node_capacity % 2 == 0);
+        auto num_to_move = node_capacity / 2;
+        
+        iterator first{tail_, num_to_move};
+        iterator last = end();
+        iterator dest{new_node, 0};
+        
+        std::move(first, last, dest);
+      }
       
       tail_->emplace_back(std::forward<Args>(args)...);
       ++size_;
+    }
+    
+    iterator begin(void) const
+    {
+      return iterator{head_, 0};
+    }
+    
+    iterator end(void) const
+    {
+      return iterator{tail_, (typename iterator::difference_type ) tail_->size()};
     }
   };
 }

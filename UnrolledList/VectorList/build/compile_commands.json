@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/christian/juicy/UnrolledList/VectorList/build",
+  "command": "/usr/bin/c++      -std=c++1y -Wall -Wextra -Wno-unused-parameter -pedantic   -o CMakeFiles/VectorList.dir/main.cpp.o -c /home/christian/juicy/UnrolledList/VectorList/main.cpp",
+  "file": "/home/christian/juicy/UnrolledList/VectorList/main.cpp"
+}
+]

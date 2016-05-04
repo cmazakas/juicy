@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "./tests.hpp"
 
 void unrolled_list_tests(void)
@@ -27,6 +29,23 @@ void unrolled_list_tests(void)
       }
       
       assert(list.size() == list.capacity());
+    });
+    
+    it("should be iterable (forward)", []()
+    {
+      regulus::unrolled_list<int> list;
+      
+      int const num_vals = list.capacity();
+      int i = 0;
+      for (; i < num_vals; ++i) {
+        list.emplace_back(i);
+      }
+            
+      /*i = 0;
+      for (auto v : list) {
+        assert(v == i);
+        ++i;
+      }*/
     });
   });
 }

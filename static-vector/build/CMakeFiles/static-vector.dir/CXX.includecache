@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/christian/juicy/static-vector/./include/static-vector.hpp
+cstddef
+-
+type_traits
+-
+stdexcept
+-
+iterator
+-
+
+/home/christian/juicy/static-vector/main.cpp
+cassert
+-
+algorithm
+-
+iostream
+-
+./include/static-vector.hpp
+/home/christian/juicy/static-vector/./include/static-vector.hpp
+

@@ -15,6 +15,8 @@ type_traits
 -
 utility
 -
+algorithm
+-
 
 /home/christian/juicy/UnrolledList/UnrolledList/include/unrolled-list.hpp
 cstddef
@@ -24,6 +26,8 @@ array
 type_traits
 -
 utility
+-
+algorithm
 -
 
 /home/christian/juicy/UnrolledList/UnrolledList/main.cpp
@@ -51,6 +55,8 @@ cassert
 /home/christian/juicy/UnrolledList/UnrolledList/include/unrolled-list.hpp
 
 /home/christian/juicy/UnrolledList/UnrolledList/tests/unrolled-list-tests.cpp
+iostream
+-
 ./tests.hpp
 /home/christian/juicy/UnrolledList/UnrolledList/tests/./tests.hpp
 

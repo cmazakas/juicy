@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/christian/juicy/static-vector/build",
+  "command": "/usr/bin/c++    -I/home/christian/juicy/static-vector/include   -std=c++1y -Wall -Wextra -Wno-unused-parameter -pedantic   -o CMakeFiles/static-vector.dir/main.cpp.o -c /home/christian/juicy/static-vector/main.cpp",
+  "file": "/home/christian/juicy/static-vector/main.cpp"
+}
+]
