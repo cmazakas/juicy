@@ -46,6 +46,8 @@ namespace regulus
     class iterator
     {
     private:
+      friend class static_vector;
+      
       static_vector& vec_;
       difference_type pos_;
             
@@ -189,6 +191,25 @@ namespace regulus
     const_reference back(void) const
     {
       return (*this)[size_ - 1];
+    }
+    
+    iterator insert(iterator it, const_reference val)
+    {
+      auto pos = it.pos_;
+      for (decltype(pos) i = size_ - 1; i >= pos; --i) {
+        new(address_at(i + 1)) value_type{std::move(*address_at(i))};
+      }
+      
+      new(address_at(pos)) value_type{val};
+      ++size_;
+      
+      return iterator{*this, pos};
+    }
+    
+    void pop_back(void)
+    {
+      address_at(size_ - 1)->~value_type();
+      --size_;
     }
   };
 }

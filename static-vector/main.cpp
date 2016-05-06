@@ -35,12 +35,12 @@ int main(void)
   }
   
   // it should support try-catchable element access...
-  try {
+  /*try {
     int cpy = vec.at(vec.size() * 4); // oh no!!!
     assert(cpy == 1337);
   } catch(std::exception& e) {
     assert(std::strcmp(e.what(), "Index is out of bounds!") == 0);
-  }
+  }*/
   
   // it should support front/back access
   assert(vec.front() == 0);
@@ -51,6 +51,18 @@ int main(void)
   for (int i = 0; i < (int ) ref.size(); ++i) {
     assert(ref[i] == (i * 2));
   }
+  
+  // we should be able to remove elements
+  auto old_size = vec.size();
+  for (int i = 0; i < 5; ++i) {
+    vec.pop_back();
+  }
+  assert(vec.size() == old_size - 5);
+  
+  // it should be insert-able
+  auto test_it = vec.insert(vec.begin() + 8, 1337);
+  assert(*test_it == 1337);
+  assert(vec.size() == old_size - 4);
   
   return 0;  
 }
