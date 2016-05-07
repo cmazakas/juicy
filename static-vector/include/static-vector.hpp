@@ -13,7 +13,11 @@
   */
 namespace regulus
 {
-  template <typename T, std::size_t N>
+  template <
+    typename T,
+    std::size_t N,
+    typename = std::enable_if_t<std::is_move_constructible<T>::value>
+  >
   class static_vector
   {
   private:
@@ -118,6 +122,14 @@ namespace regulus
       : size_{0}
     {}
     
+    static_vector(const_reference init)
+     : size_{0}
+    {
+      for (decltype(N) i = 0; i < N; ++i) {
+        this->emplace_back(init);
+      }
+    }
+    
     ~static_vector(void)
     {
       for (size_type i = 0; i < size_; ++i) {
@@ -147,7 +159,7 @@ namespace regulus
       if (pos >= size_) {
         throw std::out_of_range{"Index is out of bounds!"};
       }
-      return (*this)[pos];
+      return this->operator[](pos);
     }
         
     const_reference at(size_type const pos) const
@@ -155,7 +167,7 @@ namespace regulus
       if (pos >= size_) {
         throw std::out_of_range{"Index is out of bounds!"};
       }
-      return (*this)[pos];
+      return this->operator[](pos);
     }
         
     size_type size(void) const
@@ -175,41 +187,54 @@ namespace regulus
     
     reference front(void)
     {
-      return (*this)[0];
+      return this->operator[](0);
     }
     
     const_reference front(void) const
     {
-      return (*this)[0];
+      return this->operator[](0);
     }
     
     reference back(void)
     {
-      return (*this)[size_ - 1];
+      return this->operator[](size_ - 1);
     }
     
     const_reference back(void) const
     {
-      return (*this)[size_ - 1];
+      return this->operator[](size_ - 1);
     }
     
     iterator insert(iterator it, const_reference val)
     {
       auto pos = it.pos_;
-      for (decltype(pos) i = size_ - 1; i >= pos; --i) {
+      // move all elements to the right by 1
+      for (difference_type i = size_ - 1; i >= pos; --i) {
         new(address_at(i + 1)) value_type{std::move(*address_at(i))};
       }
       
+      // construct element in-place
       new(address_at(pos)) value_type{val};
       ++size_;
       
+      // return iterator to the new element
       return iterator{*this, pos};
     }
     
     void pop_back(void)
     {
-      address_at(size_ - 1)->~value_type();
+      caddress_at(size_ - 1)->~value_type();
       --size_;
+    }
+    
+    static_vector slice(size_type const pos)
+    {
+      static_vector dst;
+      for (size_type i = pos; i < size_; ++i) {
+        dst.emplace_back(std::move(*address_at(i)));
+      }
+      size_ = pos;
+      return dst;
     }
   };
 }
