@@ -114,16 +114,41 @@ int main(void)
     for (auto val : vec) {
       assert(val == init);
     }
+  }
+  
+  // it should support slicing
+  {
+    int const init = 1337;
+    std::size_t const N = 32;
+    regulus::static_vector<int, N> vec{init};
     
-    // it should support slicing
+    std::size_t slice_idx = 10;
+    
+    auto chunk = vec.slice(slice_idx);
+    assert(chunk.size() == N - slice_idx);
+    assert(vec.size() == slice_idx);
+  }
+  
+  // it should support non-trivial types
+  {
+    struct non_trivial
     {
-      int const init = 1337;
-      regulus::static_vector<int, 32> vec{init};
+      int* ptr;
       
-      auto chunk = vec.slice(32 - 10);
-      assert(chunk.size() == 10);
-      assert(vec.size() == 32 - 10);
-    }
+      non_trivial(void)
+        : ptr{new int{0}}
+      {}
+      
+      ~non_trivial(void)
+      {
+        delete ptr;
+      }
+    };
+    
+    non_trivial init;
+    std::size_t const N = 32;
+    regulus::static_vector<non_trivial, N> vec{init};
+    assert(vec.size() == N);
   }
         
   return 0;  
