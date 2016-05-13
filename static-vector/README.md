@@ -59,89 +59,62 @@ Example:
 
 ## Methods
 
-```cpp
-static_vector(void)
-```
+
+
+##### static_vector(void)
 Default constructs the vector to a size of 0.
 
-```cpp
-static_vector(const_reference init)
-```
+##### static_vector(const_reference init)
 Constructs the vector and fills it to capacity with copies of init.
 
-```cpp
-reference at(size_type const pos)
-const_reference at(size_type const pos) const
-```
+
+##### reference at(size_type const pos)
+##### const_reference at(size_type const pos) const
 Element access that will throw an out of range exception.
 
-```cpp
-reference operator[](size_type const pos)
-const_reference operator[](size_type const pos) const
-```
+##### reference operator[](size_type const pos)
+##### const_reference operator[](size_type const pos) const
 Array-like element access.
 
-```cpp
-reference front(void)
-const_reference front(void) const
-```
+##### reference front(void)
+##### const_reference front(void) const
 Get a reference to the first element in the vector.
 
-```cpp
-reference back(void)
-const_reference back(void) const
-```
+##### reference back(void)
+##### const_reference back(void) const
 Get a reference to the last element in the vector.
 
-```cpp
-iterator begin(void)
-```
+##### iterator begin(void)
 Return an iterator the beginning of the vector.
 
-```cpp
-iterator end(void)
-```
+##### iterator end(void)
 Return a one-past-the-end iterator. Should not be dereferenced.
 
-```cpp
-size_type size(void) const
-```
+##### size_type size(void) const
 Obtain the current size of the vector.
 
-```cpp
-iterator insert(iterator it, const_reference val)
-```
+##### iterator insert(iterator it, const_reference val)
 Inserts a copy of `val` to the location `it`. This shifts all
 elements to the right so this is an `O(n)` operation. Is most 
 efficient when inserting elements towards the end of the vector
 and is least efficient when inserting at the front.
 
-```cpp
-iterator erase(iterator it)
-```
+##### iterator erase(iterator it)
 Erase the data pointed at by it and return an iterator
 to element that came after `it`. Will return the `end()`
 iterator in the case that `it` is the last element.
 
-```cpp
-template <typename ...Args>
-void emplace_back(Args&& ...args)
-```
+##### template <typename ...Args>
+##### void emplace_back(Args&& ...args)
 Construct an element in-place at the end of the vector.
 
-```cpp
-void pop_back(void)
-```
+##### void pop_back(void)
 Remove the last element of the vector.
 
-```cpp
-void resize(size_type const count)
-```
+##### void resize(size_type const count)
 Default construct elements at the end of the vector
 until the `size()` is equal to `count`.
 
-```cpp
-static_vector slice(size_type const pos)
-```
+##### static_vector slice(size_type const pos)
 Move elements of the current vector from `[pos, size)` to
 a new vector.
