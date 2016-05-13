@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/christian/juicy/unrolled-list/include/static-vector.hpp
+cstddef
+-
+type_traits
+-
+stdexcept
+-
+iterator
+-
+
+/home/christian/juicy/unrolled-list/include/unrolled-list.hpp
+static-vector.hpp
+/home/christian/juicy/unrolled-list/include/static-vector.hpp
+
+/home/christian/juicy/unrolled-list/main.cpp
+cassert
+-
+iostream
+-
+include/unrolled-list.hpp
+/home/christian/juicy/unrolled-list/include/unrolled-list.hpp
+

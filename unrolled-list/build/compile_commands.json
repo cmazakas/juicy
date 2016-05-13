@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/christian/juicy/unrolled-list/build",
+  "command": "/usr/bin/c++    -I/home/christian/juicy/unrolled-list/include   -std=c++1y -Wall -Wextra -pedantic -O3   -o CMakeFiles/unrolled-list.dir/main.cpp.o -c /home/christian/juicy/unrolled-list/main.cpp",
+  "file": "/home/christian/juicy/unrolled-list/main.cpp"
+}
+]

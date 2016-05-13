@@ -47,12 +47,19 @@ int main(void)
   }
 
   // it should support try-catchable element access...
-  /*try {
-    int cpy = vec.at(vec.size() * 4); // oh no!!!
-    assert(cpy == 1337);
-  } catch(std::exception& e) {
-    assert(std::strcmp(e.what(), "Index is out of bounds!") == 0);
-  }*/
+  {
+    regulus::static_vector<int, 32> vec;
+    vec.emplace_back(1337);
+    
+    assert(vec.size() == 1);
+    
+    try {
+      int cpy = vec.at(vec.size() * 4); // oh no!!!
+      assert(cpy == 1337);
+    } catch(std::exception& e) {
+      assert(std::strcmp(e.what(), "Index is out of bounds!") == 0);
+    }
+  }
   
   // it should support front/back access
   {
@@ -127,6 +134,14 @@ int main(void)
     auto chunk = vec.slice(slice_idx);
     assert(chunk.size() == N - slice_idx);
     assert(vec.size() == slice_idx);
+    
+    for (auto i : vec) {
+      assert(i == init);
+    }
+    
+    for (auto i : chunk) {
+      assert(i == init);
+    }
   }
   
   // it should support non-trivial types
@@ -139,6 +154,12 @@ int main(void)
         : ptr{new int{0}}
       {}
       
+      non_trivial(non_trivial const& other)
+      {
+        ptr = new int;
+        *ptr = *other.ptr;
+      }
+      
       ~non_trivial(void)
       {
         delete ptr;
@@ -149,6 +170,66 @@ int main(void)
     std::size_t const N = 32;
     regulus::static_vector<non_trivial, N> vec{init};
     assert(vec.size() == N);
+  }
+  
+  // it should be resize-able
+  {
+    std::size_t const size = 32;
+    regulus::static_vector<int, size> vec;
+    
+    assert(vec.size() == 0);
+    
+    vec.resize(size);
+    
+    assert(vec.size() == size);
+    assert(int{} == 0);
+    for (auto v : vec) {
+      assert(v == 0);
+    }
+  }
+  
+  // it should be transform-able
+  {
+    std::size_t const size = 32;
+    regulus::static_vector<int, size> a;
+    decltype(a) b;
+    
+    for (int i = 0; i < (int ) size; ++i) {
+      a.emplace_back(i);
+    }
+    
+    b.resize(size);
+    
+    assert(a.size() == size);
+    assert(a.size() == b.size());
+    
+    std::transform(a.begin(), a.end(), b.begin(), [](int x)
+    {
+      return x * x;
+    });
+    
+    for (int i = 0; i < (int ) size; ++i) {
+      assert(b[i] == i * i);
+    }
+  }
+  
+  // it should support erasing
+  {
+    regulus::static_vector<int, 128> vec;
+    for (int i = 0; i < 128; ++i) {
+      vec.emplace_back(i);
+    }
+    
+    assert(vec.size() == 128);
+    assert(*(vec.begin() + 64) == 64);
+    
+    auto it = vec.erase(vec.begin() + 64);
+    assert(*it == 65);
+    assert(vec.size() == 127);
+    
+    for (auto i : vec) {
+      assert(i != 64);
+    }
   }
         
   return 0;  
