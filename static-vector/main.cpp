@@ -154,6 +154,9 @@ int main(void)
         : ptr{new int{0}}
       {}
       
+      // it's up to the implementation of non-trivial classes
+      // to define the appropriate constructor overloads
+      // for the vector to work properly
       non_trivial(non_trivial const& other)
       {
         ptr = new int;
@@ -239,8 +242,13 @@ int main(void)
     assert(vec.size() == 32);
     
     typename regulus::static_vector<int, 32>::iterator it = vec.end() - 1;
+    
     assert(std::distance(vec.begin(), it) == 31);
-    assert(vec.erase(vec.end() - 1) == vec.end());
+    assert(*it == 1337);
+    
+    auto diff_it = vec.erase(it);
+    assert(vec.size() == 31);
+    assert(diff_it == vec.end());
   }
         
   return 0;  
