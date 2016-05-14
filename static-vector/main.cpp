@@ -231,6 +231,17 @@ int main(void)
       assert(i != 64);
     }
   }
+  
+  // erasing an element at the end should return an
+  // end-iterator
+  {
+    regulus::static_vector<int, 32> vec{1337};
+    assert(vec.size() == 32);
+    
+    typename regulus::static_vector<int, 32>::iterator it = vec.end() - 1;
+    assert(std::distance(vec.begin(), it) == 31);
+    assert(vec.erase(vec.end() - 1) == vec.end());
+  }
         
   return 0;  
 }

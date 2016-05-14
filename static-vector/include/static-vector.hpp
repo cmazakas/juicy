@@ -26,32 +26,33 @@ namespace regulus
       
   public:
     // Member Types
-    typedef T value_type;
-    typedef std::size_t size_type;
-    typedef std::ptrdiff_t difference_type;
-    typedef value_type& reference;
+    typedef T                 value_type;
+    typedef std::size_t       size_type;
+    typedef std::ptrdiff_t    difference_type;
+    typedef value_type&       reference;
     typedef value_type const& const_reference;
-    typedef value_type* pointer;
+    typedef value_type*       pointer;
     typedef value_type const* const_pointer;    
     
   private:
     // We use an array of POD types suitable for storing T
     std::aligned_storage_t<sizeof(T), alignof(T)> data_[N];
-    size_type size_;
+    size_type                                     size_;
     
     // 2 small helper functions for reading out of the array
-    pointer address_at(size_type const pos)
+    inline pointer address_at(size_type const pos)
     {
       return reinterpret_cast<pointer>(data_ + pos);
     }
     
-    const_pointer caddress_at(size_type const pos) const
+    inline const_pointer caddress_at(size_type const pos) const
     {
       return reinterpret_cast<const_pointer>(data_ + pos);
     }
     
   public:
-    class iterator
+    class iterator :
+      public std::iterator<std::random_access_iterator_tag, value_type>
     {
     private:
       friend class static_vector;
@@ -121,6 +122,11 @@ namespace regulus
       {
         pos_ -= pos;
         return *this;
+      }
+      
+      difference_type operator-(iterator other)
+      {
+        return pos_ - other.pos_;
       }
     };
     
@@ -208,6 +214,11 @@ namespace regulus
     size_type size(void) const
     {
       return size_;
+    }
+    
+    size_type capacity(void) const
+    {
+      return N;
     }
     
     // Modifiers
