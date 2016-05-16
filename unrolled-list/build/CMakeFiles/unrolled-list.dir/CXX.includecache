@@ -15,6 +15,8 @@ stdexcept
 -
 iterator
 -
+algorithm
+-
 
 /home/christian/juicy/unrolled-list/include/unrolled-list.hpp
 static-vector.hpp

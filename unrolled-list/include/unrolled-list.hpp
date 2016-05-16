@@ -38,29 +38,39 @@ namespace regulus
     {
     private:
       node* curr_node_;
-      typename static_vector<value_type, node_size>::iterator it_;
+      difference_type pos_;
       
     public:
-      iterator(node* curr_node, decltype(it_) it)
+      iterator(node* curr_node, difference_type pos)
         : curr_node_{curr_node}
-        , it_{it}
+        , pos_{pos}
       {}
       
       iterator& operator++(void)
       {
-        if (it_ == curr_node_->vec.end()) {
-          curr_node_ = curr_node_->next;
-          it_ = (curr_node_ != nullptr) ? curr_node_->vec.begin() : decltype(it_){};
-        } else {
-          ++it_;
+        // if we're at the end of the vector...
+        if (pos_ == node_size - 1) {
+          // find out if there's another node for us
+          auto next = curr_node_->next;
+          if (next != nullptr) {
+            // we hop nodes of our list and reset the position
+            // breaks program flow
+            curr_node_ = next;
+            pos_ = 0;
+            return *this;
+          }
         }
         
+        // even if we're at the last element of the tail,
+        // we still want to increment because we must still
+        // return an iterator to match end()
+        ++pos_;
         return *this;
       }
       
       reference operator*(void)
       {
-        return *it_;
+        return curr_node_->vec[pos_];
       }
     };
     
@@ -84,23 +94,26 @@ namespace regulus
         delete tmp;
       }
     }
+            
+    // Iterators
+    iterator begin(void) const
+    {
+      return iterator{head_, 0};
+    }
     
+    // Capacity
     size_type size(void) const
     {
       return size_;
     }
     
+    // Modifiers
     template <typename ...Args>
     void emplace_back(Args&& ...args)
     {
       auto& vec = tail_->vec;
       vec.emplace_back(std::forward<Args>(args)...);
       ++size_;
-    }
-    
-    iterator begin(void) const
-    {
-      return iterator{head_, head_->vec.begin()};
     }
   };
 }

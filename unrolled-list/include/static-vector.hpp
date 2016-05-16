@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <stdexcept>
 #include <iterator>
+#include <algorithm>
 
 /**
   * This implementation is based off of the
@@ -24,30 +25,34 @@ namespace regulus
       friend class iterator;
       
   public:
-    typedef T value_type;
-    typedef std::size_t size_type;
-    typedef std::ptrdiff_t difference_type;
-    typedef value_type& reference;
+    // Member Types
+    typedef T                 value_type;
+    typedef std::size_t       size_type;
+    typedef std::ptrdiff_t    difference_type;
+    typedef value_type&       reference;
     typedef value_type const& const_reference;
-    typedef value_type* pointer;
+    typedef value_type*       pointer;
     typedef value_type const* const_pointer;    
     
   private:
+    // We use an array of POD types suitable for storing T
     std::aligned_storage_t<sizeof(T), alignof(T)> data_[N];
-    size_type size_;
+    size_type                                     size_;
     
-    pointer address_at(size_type const pos)
+    // 2 small helper functions for reading out of the array
+    inline pointer address_at(size_type const pos)
     {
       return reinterpret_cast<pointer>(data_ + pos);
     }
     
-    const_pointer caddress_at(size_type const pos) const
+    inline const_pointer caddress_at(size_type const pos) const
     {
       return reinterpret_cast<const_pointer>(data_ + pos);
     }
     
   public:
-    class iterator
+    class iterator :
+      public std::iterator<std::random_access_iterator_tag, value_type>
     {
     private:
       friend class static_vector;
@@ -76,6 +81,11 @@ namespace regulus
         return *(vec_.address_at(pos_));
       }
       
+      pointer operator->(void)
+      {
+        return vec_.address_at(pos_);
+      }
+      
       iterator& operator++(void)
       {
         ++pos_;
@@ -102,7 +112,7 @@ namespace regulus
         return tmp;
       }
       
-      iterator& operator+(size_type const pos)
+      iterator& operator+(difference_type const pos)
       {
         pos_ += pos;
         return *this;
@@ -112,6 +122,11 @@ namespace regulus
       {
         pos_ -= pos;
         return *this;
+      }
+      
+      difference_type operator-(iterator other)
+      {
+        return pos_ - other.pos_;
       }
     };
     
@@ -124,36 +139,21 @@ namespace regulus
     
     static_vector(const_reference init)
     {
-      for (decltype(N) i = 0; i < N; ++i) {
-        new(address_at(i)) value_type{init};
+      for (auto ptr = address_at(0); ptr < address_at(N); ++ptr) {
+        new(ptr) value_type{init};
       }
       size_ = N;
     }
     
     ~static_vector(void)
     {
+      auto const ptr = caddress_at(0);
       for (size_type i = 0; i < size_; ++i) {
-        caddress_at(i)->~value_type();
+        (ptr + i)->~value_type();
       }
     }
     
-    template <typename ...Args>
-    void emplace_back(Args&& ...args)
-    {
-      new(address_at(size_)) value_type{std::forward<Args>(args)...};
-      ++size_;
-    }
-    
-    reference operator[](size_type const pos)
-    {
-      return *address_at(pos);
-    }
-     
-    const_reference operator[](size_type const pos) const
-    {
-      return *caddress_at(pos);
-    }
-     
+    // Element Access
     reference at(size_type const pos)
     {
       if (pos >= size_) {
@@ -169,20 +169,15 @@ namespace regulus
       }
       return this->operator[](pos);
     }
-        
-    size_type size(void) const
-    {
-      return size_;
-    }
     
-    iterator begin(void)
+    reference operator[](size_type const pos)
     {
-      return iterator{*this, 0};
+      return *address_at(pos);
     }
-    
-    iterator end(void)
+     
+    const_reference operator[](size_type const pos) const
     {
-      return iterator{*this, (difference_type ) size_};
+      return *caddress_at(pos);
     }
     
     reference front(void)
@@ -205,26 +200,83 @@ namespace regulus
       return this->operator[](size_ - 1);
     }
     
+    // Iterators
+    iterator begin(void)
+    {
+      return iterator{*this, 0};
+    }
+    
+    iterator end(void)
+    {
+      return iterator{*this, (difference_type ) size_};
+    }
+    
+    // Capacity
+    size_type size(void) const
+    {
+      return size_;
+    }
+    
+    size_type capacity(void) const
+    {
+      return N;
+    }
+    
+    // Modifiers
     iterator insert(iterator it, const_reference val)
     {
       auto pos = it.pos_;
+      
+      auto first = address_at(size_ - 1);
+      auto last = address_at(pos);
+      
       // move all elements to the right by 1
-      for (difference_type i = size_ - 1; i >= pos; --i) {
-        new(address_at(i + 1)) value_type{std::move(*address_at(i))};
+      for (auto ptr = first; ptr >= last; --ptr) {
+        new(ptr + 1) value_type{std::move(*ptr)};
       }
       
       // construct element in-place
-      new(address_at(pos)) value_type{val};
+      new(last) value_type{val};
       ++size_;
       
       // return iterator to the new element
       return iterator{*this, pos};
     }
     
+    iterator erase(iterator it)
+    {
+      auto pos = it.pos_;
+      it->~value_type();
+      
+      auto begin = address_at(pos + 1);
+      auto end = address_at(size_);
+      
+      for (auto ptr= begin; ptr < end; ++ptr) {
+        new(ptr - 1) value_type{std::move(*ptr)};
+      }
+
+      --size_;
+      return iterator{*this, pos};
+    }
+    
+    template <typename ...Args>
+    void emplace_back(Args&& ...args)
+    {
+      new(address_at(size_)) value_type{std::forward<Args>(args)...};
+      ++size_;
+    }
+    
     void pop_back(void)
     {
       caddress_at(size_ - 1)->~value_type();
       --size_;
+    }
+    
+    void resize(size_type const count)
+    {
+      for (size_type i = size_; i < count; ++i) {
+        this->emplace_back();        
+      }
     }
     
     static_vector slice(size_type const pos)

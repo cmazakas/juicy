@@ -139,16 +139,17 @@ namespace regulus
     
     static_vector(const_reference init)
     {
-      for (decltype(N) i = 0; i < N; ++i) {
-        new(address_at(i)) value_type{init};
+      for (auto ptr = address_at(0); ptr < address_at(N); ++ptr) {
+        new(ptr) value_type{init};
       }
       size_ = N;
     }
     
     ~static_vector(void)
     {
+      auto const ptr = caddress_at(0);
       for (size_type i = 0; i < size_; ++i) {
-        caddress_at(i)->~value_type();
+        (ptr + i)->~value_type();
       }
     }
     
@@ -225,13 +226,17 @@ namespace regulus
     iterator insert(iterator it, const_reference val)
     {
       auto pos = it.pos_;
+      
+      auto first = address_at(size_ - 1);
+      auto last = address_at(pos);
+      
       // move all elements to the right by 1
-      for (difference_type i = size_ - 1; i >= pos; --i) {
-        new(address_at(i + 1)) value_type{std::move(*address_at(i))};
+      for (auto ptr = first; ptr >= last; --ptr) {
+        new(ptr + 1) value_type{std::move(*ptr)};
       }
       
       // construct element in-place
-      new(address_at(pos)) value_type{val};
+      new(last) value_type{val};
       ++size_;
       
       // return iterator to the new element
@@ -241,9 +246,13 @@ namespace regulus
     iterator erase(iterator it)
     {
       auto pos = it.pos_;
-      it->~value_type();  
-      for (difference_type i = pos + 1; i < (difference_type ) size_; ++i) {
-        new(address_at(i - 1)) value_type{std::move(*address_at(i))};
+      it->~value_type();
+      
+      auto begin = address_at(pos + 1);
+      auto end = address_at(size_);
+      
+      for (auto ptr= begin; ptr < end; ++ptr) {
+        new(ptr - 1) value_type{std::move(*ptr)};
       }
 
       --size_;
