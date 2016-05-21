@@ -1,1 +1,0 @@
-/usr/bin/c++    -std=c++1y -Wall -Wextra -Wno-unused-parameter -pedantic   CMakeFiles/UnrolledList.dir/main.cpp.o CMakeFiles/UnrolledList.dir/tests/tests.cpp.o CMakeFiles/UnrolledList.dir/tests/unrolled-list-tests.cpp.o  -o UnrolledList -rdynamic 
