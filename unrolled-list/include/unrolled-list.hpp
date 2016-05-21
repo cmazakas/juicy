@@ -17,8 +17,9 @@ namespace regulus
     typedef size_type*        pointer;
     typedef size_type const*  const_pointer;
     
-  private:
     std::size_t const static node_size = 32;
+    
+  private:
     struct node
     {
     public:
@@ -34,7 +35,8 @@ namespace regulus
     };
     
   public:
-    class iterator
+    class iterator :
+      public std::iterator<std::bidirectional_iterator_tag, value_type>
     {
     private:
       node* curr_node_;
@@ -45,11 +47,26 @@ namespace regulus
         : curr_node_{curr_node}
         , pos_{pos}
       {}
+            
+      reference operator*(void)
+      {
+        return curr_node_->vec[pos_];
+      }
+      
+      bool operator==(iterator const& other)
+      {
+        return (curr_node_ == other.curr_node_ && pos_ == other.pos_);
+      }
+      
+      bool operator!=(iterator const& other)
+      {
+        return !(*this == other);
+      }
       
       iterator& operator++(void)
       {
         // if we're at the end of the vector...
-        if (pos_ == node_size - 1) {
+        if (pos_ == (difference_type ) curr_node_->vec.size() - 1) {
           // find out if there's another node for us
           auto next = curr_node_->next;
           if (next != nullptr) {
@@ -68,9 +85,19 @@ namespace regulus
         return *this;
       }
       
-      reference operator*(void)
+      iterator& operator--(void)
       {
-        return curr_node_->vec[pos_];
+        if (pos_ == 0) {
+          auto prev = curr_node_->prev;
+          if (prev != nullptr) {
+            curr_node_ = prev;
+            pos_ = curr_node_->vec.size() - 1;
+            return *this;
+          }
+        }
+        
+        --pos_;
+        return *this;
       }
     };
     
@@ -78,6 +105,25 @@ namespace regulus
     node *head_;
     node *tail_;
     size_type size_;
+    
+  private:
+    node* insert_node(node& curr)
+    {
+      auto next = curr.next;
+      auto new_node = new node;
+      
+      curr.next = new_node;
+      new_node->prev = std::addressof(curr);
+      new_node->next = next;
+      
+      // in the case of the tail pointer, the next pointer
+      // is null
+      if (next) {
+        next->prev = new_node;
+      }
+      
+      return new_node;
+    }
     
   public:
     unrolled_list(void)
@@ -101,6 +147,11 @@ namespace regulus
       return iterator{head_, 0};
     }
     
+    iterator end(void) const
+    {
+      return iterator{tail_, (difference_type ) tail_->vec.size()};
+    }
+    
     // Capacity
     size_type size(void) const
     {
@@ -111,8 +162,13 @@ namespace regulus
     template <typename ...Args>
     void emplace_back(Args&& ...args)
     {
-      auto& vec = tail_->vec;
-      vec.emplace_back(std::forward<Args>(args)...);
+      if (tail_->vec.size() == tail_->vec.capacity()) {
+        auto old_tail = tail_;
+        tail_ = insert_node(*old_tail);
+        tail_->vec = std::move(old_tail->vec.slice(node_size / 2));
+      }
+      
+      tail_->vec.emplace_back(std::forward<Args>(args)...);
       ++size_;
     }
   };
